@@ -11,13 +11,12 @@ import java.util.UUID;
 @RequestMapping("/api/comptes")
 public class CompteController {
 
-    // Notre "base de données" temporaire (une simple liste)
+    // Notre "base de données" temporaire
     private List<Compte> listeComptes = new ArrayList<>();
 
     // 1. Créer un compte
     @PostMapping
     public Compte creerCompte(@RequestBody Compte compte) {
-        // On génère un ID unique automatiquement
         compte.setId(UUID.randomUUID().toString());
         listeComptes.add(compte);
         return compte;
@@ -27,5 +26,33 @@ public class CompteController {
     @GetMapping
     public List<Compte> afficherTousLesComptes() {
         return listeComptes;
+    }
+
+    // 3. Effectuer un dépôt
+    @PostMapping("/{id}/deposer/{montant}")
+    public Compte deposer(@PathVariable String id, @PathVariable double montant) {
+        for (Compte c : listeComptes) {
+            if (c.getId().equals(id)) {
+                c.setSolde(c.getSolde() + montant);
+                return c;
+            }
+        }
+        throw new RuntimeException("Compte introuvable !");
+    }
+
+    // 4. Effectuer un retrait
+    @PostMapping("/{id}/retirer/{montant}")
+    public Compte retirer(@PathVariable String id, @PathVariable double montant) {
+        for (Compte c : listeComptes) {
+            if (c.getId().equals(id)) {
+                if (c.getSolde() >= montant) {
+                    c.setSolde(c.getSolde() - montant);
+                    return c;
+                } else {
+                    throw new RuntimeException("Solde insuffisant pour effectuer ce retrait !");
+                }
+            }
+        }
+        throw new RuntimeException("Compte introuvable !");
     }
 }
