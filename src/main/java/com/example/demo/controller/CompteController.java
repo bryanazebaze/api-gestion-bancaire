@@ -11,7 +11,6 @@ import java.util.UUID;
 @RequestMapping("/api/comptes")
 public class CompteController {
 
-    // Notre "base de données" temporaire
     private List<Compte> listeComptes = new ArrayList<>();
 
     // 1. Créer un compte
@@ -49,9 +48,19 @@ public class CompteController {
                     c.setSolde(c.getSolde() - montant);
                     return c;
                 } else {
-                    throw new RuntimeException("Solde insuffisant pour effectuer ce retrait !");
+                    throw new RuntimeException("Solde insuffisant !");
                 }
             }
+        }
+        throw new RuntimeException("Compte introuvable !");
+    }
+
+    // 5. Supprimer un compte (AJOUTÉ)
+    @DeleteMapping("/{id}")
+    public String supprimerCompte(@PathVariable String id) {
+        boolean supprime = listeComptes.removeIf(c -> c.getId().equals(id));
+        if (supprime) {
+            return "Le compte avec l'ID " + id + " a été supprimé.";
         }
         throw new RuntimeException("Compte introuvable !");
     }
